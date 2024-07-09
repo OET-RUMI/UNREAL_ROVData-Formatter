@@ -5,6 +5,7 @@ import piexif
 def set_exif_data(image_path, focal_length, focal_length_35mm, lens_model, lens_make=None):
     try:
         img = Image.open(image_path)
+        exif_dict = piexif.load(img.info['exif'])
         
         # Set the focal length in the EXIF data
         exif_dict['Exif'][piexif.ExifIFD.FocalLength] = (int(focal_length * 100), 100)
