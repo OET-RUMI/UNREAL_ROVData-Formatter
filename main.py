@@ -1,12 +1,15 @@
 import pandas as pd
+from dateutil import parser
+from datetime import datetime
 import os
 
 INPUT_FOLDER = 'input'
 OUTPUT_FOLDER = 'output'
 
-# Timestamp,Longitude,Latitude,Depth,Conductivity,PressurePSI,SalinityPSU,SoundVelocityMS,TemperatureC,Heading,Pitch,Roll,OxygenUncompensatedConcentrationMicromolar,OxygenUncompensatedSaturationPercent,SealogEventText,SealogEventValue
+TIMESTAMP_FORMAT = '%Y-%m-%dT%H:%M:%S.%fZ'
 
 HEADER_ALIASES = {
+	'Row Name': ['row name', 'row', 'index'],
 	'Timestamp': ['timestamp', 'time', 'date'],
 	'Longitude': ['longitude', 'long', 'dvl_lon'],
 	'Latitude': ['latitude', 'lat', 'dvl_lat'],
@@ -38,6 +41,19 @@ def get_header_alias(header, headers):
 
 	return None
 
+def correct_timestamp(timestamp):
+	input_datetime = parser.parse(timestamp)
+	output_datetime = input_datetime.strftime(TIMESTAMP_FORMAT)
+
+	millisecond_portion = output_datetime.split('.')[1]
+	millisecond_portion = millisecond_portion[3:] if len(millisecond_portion) > 3 else millisecond_portion
+	output_datetime = output_datetime.split('.')[0] + '.' + millisecond_portion
+	
+	return output_datetime
+
+def correct_depth(depth):
+	return -abs(depth)
+
 # converts from generic headers to headers matching HEADER_ALIASES keys
 def process_data(input_data):
 	headers = input_data.columns
@@ -49,6 +65,11 @@ def process_data(input_data):
 		alias = get_header_alias(header, headers)
 		if alias is not None:
 			output_data[header] = input_data[alias]
+		if alias is None and header == 'Row Name':
+			output_data[header] = input_data.index
+	
+	output_data['Timestamp'] = output_data['Timestamp'].apply(lambda x: correct_timestamp(x))
+	output_data['Depth'] = output_data['Depth'].apply(lambda x: correct_depth(x))
 
 	return output_data
 
