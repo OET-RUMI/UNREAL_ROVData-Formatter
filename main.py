@@ -22,10 +22,10 @@ HEADER_ALIASES = {
 	'Heading': ['heading', 'octans_heading'],
 	'Pitch': ['pitch', 'octans_pitch'],
 	'Roll': ['roll', 'octans_roll'],
-	'OxygenUncompensatedConcentrationMicromolar': ['oxygenuncompensatedconcentrationmicromolar', 'oxygen_uncompensated_concentration_micromolar'],
-	'OxygenUncompensatedSaturationPercent': ['oxygenuncompensatedsaturationpercent', 'oxygen_uncompensated_saturation_percent'],
-	'SealogEventText': ['sealogeventtext', 'sealog_event_free_text'],
-	'SealogEventValue': ['sealogeventvalue', 'sealog_event_value']
+	'OxygenUncompensatedConcentrationMicromolar': ['oxygenuncompensatedconcentrationmicromolar', 'oxygen_uncompensated_concentration_micromolar', 'o2_concentration'],
+	'OxygenUncompensatedSaturationPercent': ['oxygenuncompensatedsaturationpercent', 'oxygen_uncompensated_saturation_percent', 'o2_saturation'],
+	'SealogEventText': ['sealogeventtext', 'sealog_event_free_text', 'event_free_text'],
+	'SealogEventValue': ['sealogeventvalue', 'sealog_event_value', 'event_value']
 }
 
 def read_data(file_path, delimiter):
@@ -33,12 +33,16 @@ def read_data(file_path, delimiter):
 
 	return data
 
-# returns header used in headers that matches with key in HEADER_ALIASES
 def get_header_alias(header, headers):
-	for alias in HEADER_ALIASES[header]:
-		if alias in headers:
-			return alias
+	headers_lower = [h.lower() for h in headers]
 
+	for alias in HEADER_ALIASES[header]:
+		if alias.lower() in headers_lower:
+			return headers[headers_lower.index(alias.lower())]
+	
+	if header != 'Row Name':
+		print(f'{header} not found in input data')
+		
 	return None
 
 def correct_timestamp(timestamp):
@@ -63,13 +67,17 @@ def process_data(input_data):
 
 	for header in output_headers:
 		alias = get_header_alias(header, headers)
+
 		if alias is not None:
 			output_data[header] = input_data[alias]
 		if alias is None and header == 'Row Name':
 			output_data[header] = input_data.index
 	
-	output_data['Timestamp'] = output_data['Timestamp'].apply(lambda x: correct_timestamp(x))
-	output_data['Depth'] = output_data['Depth'].apply(lambda x: correct_depth(x))
+	if 'Timestamp' in output_headers:
+		output_data['Timestamp'] = output_data['Timestamp'].apply(lambda x: correct_timestamp(x))
+
+	if 'Depth' in output_headers:
+		output_data['Depth'] = output_data['Depth'].apply(lambda x: correct_depth(x))
 
 	return output_data
 
@@ -91,6 +99,8 @@ def main():
 
 		if delimiter is None:
 			continue
+
+		print(f'Processing file: {file_name}')
 
 		input_data = read_data(os.path.join(INPUT_FOLDER, file_name), delimiter)
 		output_data = process_data(input_data)
