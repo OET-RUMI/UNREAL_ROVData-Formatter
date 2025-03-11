@@ -11,6 +11,7 @@ TIMESTAMP_FORMAT = '%Y-%m-%dT%H:%M:%S.%fZ'
 HEADER_ALIASES = {
 	'Row Name': ['row name', 'row', 'index'],
 	'Timestamp': ['timestamp', 'time', 'date'],
+	'Vehicle': ['vehicle'],
 	'Longitude': ['longitude', 'long', 'dvl_lon'],
 	'Latitude': ['latitude', 'lat', 'dvl_lat'],
 	'Depth': ['depth', 'paro_depth_m'],
@@ -25,7 +26,15 @@ HEADER_ALIASES = {
 	'OxygenUncompensatedConcentrationMicromolar': ['oxygenuncompensatedconcentrationmicromolar', 'oxygen_uncompensated_concentration_micromolar', 'o2_concentration'],
 	'OxygenUncompensatedSaturationPercent': ['oxygenuncompensatedsaturationpercent', 'oxygen_uncompensated_saturation_percent', 'o2_saturation'],
 	'SealogEventText': ['sealogeventtext', 'sealog_event_free_text', 'event_free_text'],
-	'SealogEventValue': ['sealogeventvalue', 'sealog_event_value', 'event_value']
+	'SealogEventValue': ['sealogeventvalue', 'sealog_event_value', 'event_value'],
+	'SealogEventChannel': ['event_option.channel'],
+	'SealogEventMilestone': ['event_option.milestone'],
+	'SealogEventRating': ['event_option.rating'],
+	'SealogEventVehicle': ['event_option.vehicle'],
+	'Capture1': ['capture_1', 'vehicleRealtimeDualHDGrabData.camera_name_2_uom'],
+	'Capture2': ['capture_2', 'vehicleRealtimeDualHDGrabData.camera_name_2_value'],
+	'Capture1ImagePath': ['capture_1_image_path', 'vehicleRealtimeDualHDGrabData.camera_name_uom'],
+	'Capture2ImagePath': ['capture_2_image_path', 'vehicleRealtimeDualHDGrabData.camera_name_value'],
 }
 
 def read_data(file_path, delimiter):
