@@ -68,7 +68,7 @@ def correct_depth(depth):
 	return -abs(depth)
 
 # converts from generic headers to headers matching HEADER_ALIASES keys
-def process_data(input_data):
+def process_data(input_data, file_name):
 	headers = input_data.columns
 
 	output_headers = [key for key in HEADER_ALIASES.keys()]
@@ -81,6 +81,13 @@ def process_data(input_data):
 			output_data[header] = input_data[alias]
 		if alias is None and header == 'Row Name':
 			output_data[header] = input_data.index
+		if alias is None and header == 'Vehicle':
+			vehicle = ''
+			if 'atalanta' in file_name.lower():
+				vehicle = 'Atalanta'
+			elif 'hercules' in file_name.lower():
+				vehicle = 'Hercules'
+			output_data[header] = vehicle
 	
 	if 'Timestamp' in output_headers:
 		output_data['Timestamp'] = output_data['Timestamp'].apply(lambda x: correct_timestamp(x))
@@ -112,7 +119,7 @@ def main():
 		print(f'Processing file: {file_name}')
 
 		input_data = read_data(os.path.join(INPUT_FOLDER, file_name), delimiter)
-		output_data = process_data(input_data)
+		output_data = process_data(input_data, file_name)
 
 		write_data(os.path.join(OUTPUT_FOLDER, name + '_processed' + ext), output_data, ',')
 
